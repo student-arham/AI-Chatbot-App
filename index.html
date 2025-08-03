@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot App</title>
+
+    <script 
+        src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+        crossorigin="anonymous">
+    </script>
+
+    <style>
+        body {
+            font-family: monospace;
+            font-family: monospace;
+    margin: 0;
+    padding: 0;
+    animation: bgChange 10s infinite alternate;
+}
+
+@keyframes bgChange {
+    0%   { background: linear-gradient(45deg, #4158d0, #c850c0); }
+    50%  { background: linear-gradient(45deg, #ffcc70, #4158d0); }
+    100% { background: linear-gradient(45deg, #ff758c, #ff7eb3); }
+}
+            
+        #chatbox {
+            margin-left: auto;
+            margin-right: auto;
+            width: 80%;
+            margin-top: 50px;
+        }
+        .botText {
+            font-family: monospace;
+            font-size: 20px;
+            text-align: left;
+            line-height: 25px;
+            color: black;
+        }
+        #userInput {
+            margin-left: auto;
+            margin-right: auto;
+            width: 80%;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #textInput {
+            border: 3px solid;
+            border-bottom: 3px dotted black;
+            font-family: monospace;
+            font-size: 20px;
+            width: 60%;
+            padding: 10px;
+            color: cornflowerblue;
+        }
+        #buttonInput {
+            padding: 10px;
+            font-family: monospace;
+            font-size: 16px;
+            border: 3px goldenrod;
+            background-color: goldenrod;
+        }
+        h1 {
+            text-align: center;
+            color: black;
+        }
+        .userText {
+            text-align: right;
+            color: black;
+            font-family: monospace;
+            font-size: large;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <h1>Chatbot App</h1>
+
+    <div>
+        <div id="chatbox">
+            <p class="botText"><span>Hi There!</span></p>
+
+        </div>
+        <div id="userInput">
+            <input id="textInput" type="text" name="userMessage" placeholder="Type your message...." />
+            <input id="buttonInput" type="submit" value="Send" />
+        </div>
+    </div>
+
+    <script>
+        function getUserResponse() {
+            var userText = $('#textInput').val();
+            var userHTML = "<p class='userText'>User: <span>" + userText + "</span></p>";
+            $('#textInput').val("");
+            $('#chatbox').append(userHTML);
+            document.getElementById("userInput").scrollIntoView({ block: 'start', behavior: "smooth" });
+
+            $.get("/get", { userMessage: userText }).done(function (data) {
+                var botHTML = "";
+
+                if (data.type === "weather") {
+                    botHTML = "<p class='botText'>Chatbot: <span>Temperature: " +
+                        data.temperature_celsius + "°C - " + data.weather_description +
+                        " (" + data.city + ", " + data.country + ")" +
+                        "</span></p>";
+                }else if (data.type === "math") {
+                    botHTML = "<p class='botText'>Chatbot: <span>Result: " + data.result + "</span></p>";
+                } else if (data.type === "chat") {
+                    botHTML = "<p class='botText'>Chatbot: <span>" + data.message + "</span></p>";
+                } else if (data.type === "error") {
+                    botHTML = "<p class='botText'>Chatbot: <span>" + data.message + "</span></p>";
+                } else {
+                    botHTML = "<p class='botText'>Chatbot: <span>Sorry, I didn't understand that.</span></p>";
+                }
+
+                $('#chatbox').append(botHTML);
+            });
+        }
+
+        $('#textInput').keypress(function (e) {
+            if (e.which == 13) {
+                getUserResponse();
+            }
+        });
+
+        $('#buttonInput').click(function () {
+            getUserResponse();
+        });
+    </script>
+</body>
+</html>
